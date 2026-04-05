@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Rememberifi",
-    "slug": "Rememberifi",
+    "name": "Remindify",
+    "slug": "Remindify",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -36,6 +36,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "1226a615-95b3-468e-8193-974a15829726"
+      }
     }
   }
 }
