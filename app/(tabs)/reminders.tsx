@@ -3,38 +3,70 @@ import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react
 import { useReminders } from '@/hooks/useReminders';
 import { ReminderForm, ReminderFormValues } from '@/components/ReminderForm';
 import { ReminderCard } from '@/components/ReminderCard';
+import { Reminder } from '@/utils/database';
 
 export default function RemindersScreen() {
-  const { reminders, initialized, loadReminders, addReminder, toggleComplete } = useReminders();
+  const { reminders, initialized, loadReminders, addReminder, updateReminder, deleteReminder, toggleComplete } = useReminders();
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [activeReminder, setActiveReminder] = useState<Reminder | null>(null);
 
   useEffect(() => {
     setLoading(true);
     loadReminders().finally(() => setLoading(false));
   }, [loadReminders]);
 
-  const handleCreateReminder = async (values: ReminderFormValues) => {
-    await addReminder({
-      id: `reminder-${Date.now()}`,
-      title: values.title,
-      description: values.description,
-      importance: values.importance,
-      recurrenceType: values.recurrenceType,
-      dueDate: values.dueDate,
-      dueTime: values.dueTime,
-      category: values.category,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+  const closeModal = () => {
+    setActiveReminder(null);
+    setIsModalVisible(false);
+  };
+
+  const handleSaveReminder = async (values: ReminderFormValues) => {
+    if (activeReminder) {
+      await updateReminder({
+        ...activeReminder,
+        title: values.title,
+        description: values.description,
+        importance: values.importance,
+        recurrenceType: values.recurrenceType,
+        dueDate: values.dueDate,
+        dueTime: values.dueTime,
+        category: values.category,
+        updatedAt: new Date().toISOString(),
+      });
+    } else {
+      await addReminder({
+        id: `reminder-${Date.now()}`,
+        title: values.title,
+        description: values.description,
+        importance: values.importance,
+        recurrenceType: values.recurrenceType,
+        dueDate: values.dueDate,
+        dueTime: values.dueTime,
+        category: values.category,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    closeModal();
+  };
+
+  const handleEditReminder = (reminder: Reminder) => {
+    setActiveReminder(reminder);
+    setIsModalVisible(true);
+  };
+
+  const handleDeleteReminder = async (id: string) => {
+    await deleteReminder(id);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ReminderForm
         visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        onSubmit={handleCreateReminder}
+        onClose={closeModal}
+        onSubmit={handleSaveReminder}
+        initialValues={activeReminder ?? undefined}
       />
 
       <View style={styles.header}>
@@ -53,7 +85,12 @@ export default function RemindersScreen() {
           data={reminders}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <ReminderCard reminder={item} onToggleComplete={() => toggleComplete(item.id)} />
+            <ReminderCard
+              reminder={item}
+              onToggleComplete={() => toggleComplete(item.id)}
+              onEdit={() => handleEditReminder(item)}
+              onDelete={() => handleDeleteReminder(item.id)}
+            />
           )}
         />
       )}

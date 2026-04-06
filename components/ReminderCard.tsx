@@ -4,9 +4,13 @@ import { Reminder } from '@/utils/database';
 export function ReminderCard({
   reminder,
   onToggleComplete,
+  onEdit,
+  onDelete,
 }: {
   reminder: Reminder;
   onToggleComplete: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   return (
     <View style={[styles.card, reminder.completedAt && styles.completedCard]}>
@@ -19,11 +23,19 @@ export function ReminderCard({
       {reminder.description ? <Text style={styles.description}>{reminder.description}</Text> : null}
       <View style={styles.metaRow}>
         <Text style={styles.metaText}>{reminder.category.replace('_', ' ')}</Text>
-        <Text style={styles.metaText}>{reminder.recurrenceType}</Text>
+        <Text style={styles.metaText}>• {reminder.recurrenceType}</Text>
       </View>
       <View style={styles.metaRow}>
         <Text style={styles.metaText}>Due {reminder.dueDate}</Text>
         <Text style={styles.metaText}>{reminder.dueTime ?? 'Any time'}</Text>
+      </View>
+      <View style={styles.actionRow}>
+        <Pressable style={styles.secondaryButton} onPress={onEdit}>
+          <Text style={styles.secondaryText}>Edit</Text>
+        </Pressable>
+        <Pressable style={[styles.secondaryButton, styles.secondaryButtonSpacer]} onPress={onDelete}>
+          <Text style={[styles.secondaryText, styles.deleteText]}>Delete</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -72,9 +84,31 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 8,
   },
   metaText: {
     color: '#6B7280',
     fontSize: 12,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 10,
+  },
+  secondaryButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    backgroundColor: '#E5E7EB',
+  },
+  secondaryButtonSpacer: {
+    marginLeft: 8,
+  },
+  secondaryText: {
+    color: '#111827',
+    fontWeight: '600',
+  },
+  deleteText: {
+    color: '#DC2626',
   },
 });

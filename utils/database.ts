@@ -94,6 +94,30 @@ export const addReminderRow = async (reminder: Reminder): Promise<void> => {
   );
 };
 
+export const updateReminderRow = async (reminder: Reminder): Promise<void> => {
+  await runSql(
+    `UPDATE reminders
+     SET title = ?, description = ?, importance = ?, recurrence_type = ?, due_date = ?, due_time = ?, category = ?, updated_at = ?, completed_at = ?
+     WHERE id = ?;`,
+    [
+      reminder.title,
+      reminder.description,
+      reminder.importance,
+      reminder.recurrenceType,
+      reminder.dueDate,
+      reminder.dueTime || null,
+      reminder.category,
+      reminder.updatedAt,
+      reminder.completedAt || null,
+      reminder.id,
+    ]
+  );
+};
+
+export const deleteReminderRow = async (reminderId: string): Promise<void> => {
+  await runSql(`DELETE FROM reminders WHERE id = ?;`, [reminderId]);
+};
+
 export const toggleReminderCompleteRow = async (reminderId: string): Promise<void> => {
   const rows = await runSql<SQLite.SQLResultSet>(
     `SELECT completed_at FROM reminders WHERE id = ?;`,

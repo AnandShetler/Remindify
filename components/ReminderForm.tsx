@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export type ReminderFormValues = {
@@ -70,11 +70,29 @@ export function ReminderForm({
     onClose();
   };
 
+  const isEditing = Boolean(initialValues && initialValues.title);
+
+  useEffect(() => {
+    if (visible) {
+      setTitle(initialValues?.title ?? '');
+      setDescription(initialValues?.description ?? '');
+      setImportance(initialValues?.importance ?? 'medium');
+      setRecurrenceType(initialValues?.recurrenceType ?? 'daily');
+      setDueDate(initialValues?.dueDate ?? new Date().toISOString().split('T')[0]);
+      setDueTime(initialValues?.dueTime ?? '09:00');
+      setCategory(initialValues?.category ?? 'daily_maintenance');
+    } else {
+      handleReset();
+    }
+  }, [visible, initialValues]);
+
+  const titleLabel = isEditing ? 'Edit Reminder' : 'New Reminder';
+
   return (
     <Modal visible={visible} animationType="slide">
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>New Reminder</Text>
+          <Text style={styles.title}>{titleLabel}</Text>
           <Pressable style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>Close</Text>
           </Pressable>
